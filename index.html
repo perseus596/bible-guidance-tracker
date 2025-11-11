@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bible Guidance Verse Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .progress {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 20px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        select {
+            padding: 10px 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-export {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-export:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .stats {
+            padding: 20px 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            padding: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f8f9fa;
+            position: sticky;
+            top: 0;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .verse-ref {
+            font-weight: 600;
+            color: #667eea;
+            white-space: nowrap;
+        }
+
+        .verse-text {
+            line-height: 1.6;
+            max-width: 500px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-yes {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-maybe {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-no {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .tag {
+            background: #e7e7ff;
+            color: #4c4caf;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📖 Bible Guidance Verse Tracker</h1>
+            <div class="progress">
+                <span id="progressText">Analyzed: 31 / 31,102 verses (0.1%)</span>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalAnalyzed">31</div>
+                <div class="stat-label">Total Analyzed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="guidanceYes">18</div>
+                <div class="stat-label">Guidance-Worthy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="guidanceMaybe">3</div>
+                <div class="stat-label">Maybe</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="guidanceNo">10</div>
+                <div class="stat-label">Not Guidance</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <input type="text" class="search-box" id="searchBox" placeholder="Search verses or tags...">
+            
+            <div class="filter-group">
+                <select id="bookFilter">
+                    <option value="">All Books</option>
+                </select>
+                
+                <select id="guidanceFilter">
+                    <option value="">All Verses</option>
+                    <option value="YES">Guidance-Worthy</option>
+                    <option value="MAYBE">Maybe</option>
+                    <option value="NO">Not Guidance</option>
+                </select>
+            </div>
+
+            <button class="btn btn-export" onclick="exportCSV()">📥 Export CSV</button>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Reference</th>
+                        <th>Text</th>
+                        <th>Status</th>
+                        <th>Tags</th>
+                    </tr>
+                </thead>
+                <tbody id="verseTableBody">
+                </tbody>
+            </table>
+            <div id="noResults" class="no-results" style="display: none;">
+                No verses found matching your filters.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // VERSE DATABASE - Add new verses here after each analysis session
+        const analyzedVerses = [
+            {id: 1, book: "Genesis", chapter: 1, verse: 1, text: "In the beginning God created the heaven and the earth.", guidanceWorthy: "YES", tags: ["new beginnings", "starting over", "fresh start", "creation", "purpose"]},
+            {id: 2, book: "Genesis", chapter: 1, verse: 2, text: "And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters.", guidanceWorthy: "YES", tags: ["chaos", "confusion", "overwhelmed", "disorder", "depression", "hopelessness", "divine presence in darkness"]},
+            {id: 3, book: "Genesis", chapter: 1, verse: 3, text: "And God said, Let there be light: and there was light.", guidanceWorthy: "YES", tags: ["hope", "breakthrough", "enlightenment", "depression", "darkness ending", "new perspective", "clarity"]},
+            {id: 4, book: "Genesis", chapter: 1, verse: 4, text: "And God saw the light, that it was good: and God divided the light from the darkness.", guidanceWorthy: "YES", tags: ["discernment", "boundaries", "recognizing good", "gratitude", "separation from negativity"]},
+            {id: 5, book: "Genesis", chapter: 1, verse: 5, text: "And God called the light Day, and the darkness he called Night. And the evening and the morning were the first day.", guidanceWorthy: "MAYBE", tags: ["cycles", "rhythm", "balance", "naming reality"]},
+            {id: 6, book: "Genesis", chapter: 1, verse: 6, text: "And God said, Let there be a firmament in the midst of the waters, and let it divide the waters from the waters.", guidanceWorthy: "MAYBE", tags: ["boundaries", "structure", "organization", "creating space"]},
+            {id: 7, book: "Genesis", chapter: 1, verse: 7, text: "And God made the firmament, and divided the waters which were under the firmament from the waters which were above the firmament: and it was so.", guidanceWorthy: "NO", tags: []},
+            {id: 8, book: "Genesis", chapter: 1, verse: 8, text: "And God called the firmament Heaven. And the evening and the morning were the second day.", guidanceWorthy: "NO", tags: []},
+            {id: 9, book: "Genesis", chapter: 1, verse: 9, text: "And God said, Let the waters under the heaven be gathered together unto one place, and let the dry land appear: and it was so.", guidanceWorthy: "YES", tags: ["order from chaos", "overwhelm", "organization", "clarity emerging", "hidden things revealed"]},
+            {id: 10, book: "Genesis", chapter: 1, verse: 10, text: "And God called the dry land Earth; and the gathering together of the waters called he Seas: and God saw that it was good.", guidanceWorthy: "YES", tags: ["gratitude", "seeing good", "organization", "naming", "identity", "completion satisfaction"]},
+            {id: 11, book: "Genesis", chapter: 1, verse: 11, text: "And God said, Let the earth bring forth grass, the herb yielding seed, and the fruit tree yielding fruit after his kind, whose seed is in itself, upon the earth: and it was so.", guidanceWorthy: "YES", tags: ["fertility", "productivity", "growth", "potential", "seeds contain future", "generativity"]},
+            {id: 12, book: "Genesis", chapter: 1, verse: 12, text: "And the earth brought forth grass, and herb yielding seed after his kind, and the tree yielding fruit, whose seed was in itself, after his kind: and God saw that it was good.", guidanceWorthy: "YES", tags: ["hope", "patience", "growth happens", "delayed results", "trust in process", "harvest"]},
+            {id: 13, book: "Genesis", chapter: 1, verse: 13, text: "And the evening and the morning were the third day.", guidanceWorthy: "NO", tags: []},
+            {id: 14, book: "Genesis", chapter: 1, verse: 14, text: "And God said, Let there be lights in the firmament of the heaven to divide the day from the night; and let them be for signs, and for seasons, and for days, and years:", guidanceWorthy: "YES", tags: ["timing", "seasons", "guidance", "signs", "purpose", "direction", "natural rhythms"]},
+            {id: 15, book: "Genesis", chapter: 1, verse: 15, text: "And let them be for lights in the firmament of the heaven to give light upon the earth: and it was so.", guidanceWorthy: "NO", tags: []},
+            {id: 16, book: "Genesis", chapter: 1, verse: 16, text: "And God made two great lights; the greater light to rule the day, and the lesser light to rule the night: he made the stars also.", guidanceWorthy: "NO", tags: []},
+            {id: 17, book: "Genesis", chapter: 1, verse: 17, text: "And God set them in the firmament of the heaven to give light upon the earth,", guidanceWorthy: "NO", tags: []},
+            {id: 18, book: "Genesis", chapter: 1, verse: 18, text: "And to rule over the day and over the night, and to divide the light from the darkness: and God saw that it was good.", guidanceWorthy: "NO", tags: []},
+            {id: 19, book: "Genesis", chapter: 1, verse: 19, text: "And the evening and the morning were the fourth day.", guidanceWorthy: "NO", tags: []},
+            {id: 20, book: "Genesis", chapter: 1, verse: 20, text: "And God said, Let the waters bring forth abundantly the moving creature that hath life, and fowl that may fly above the earth in the open firmament of heaven.", guidanceWorthy: "YES", tags: ["abundance", "life", "creativity", "flourishing", "movement", "freedom"]},
+            {id: 21, book: "Genesis", chapter: 1, verse: 21, text: "And God created great whales, and every living creature that moveth, which the waters brought forth abundantly, after their kind, and every winged fowl after his kind: and God saw that it was good.", guidanceWorthy: "YES", tags: ["diversity", "abundance", "creativity", "uniqueness", "multiplication", "variety"]},
+            {id: 22, book: "Genesis", chapter: 1, verse: 22, text: "And God blessed them, saying, Be fruitful, and multiply, and fill the waters in the seas, and let fowl multiply in the earth.", guidanceWorthy: "YES", tags: ["blessing", "productivity", "multiplication", "growth", "expansion", "fruitfulness", "fertility"]},
+            {id: 23, book: "Genesis", chapter: 1, verse: 23, text: "And the evening and the morning were the fifth day.", guidanceWorthy: "NO", tags: []},
+            {id: 24, book: "Genesis", chapter: 1, verse: 24, text: "And God said, Let the earth bring forth the living creature after his kind, cattle, and creeping thing, and beast of the earth after his kind: and it was so.", guidanceWorthy: "YES", tags: ["productivity", "creation", "manifestation", "diversity", "authenticity"]},
+            {id: 25, book: "Genesis", chapter: 1, verse: 25, text: "And God made the beast of the earth after his kind, and cattle after their kind, and every thing that creepeth upon the earth after his kind: and God saw that it was good.", guidanceWorthy: "NO", tags: []},
+            {id: 26, book: "Genesis", chapter: 1, verse: 26, text: "And God said, Let us make man in our image, after our likeness: and let them have dominion over the fish of the sea, and over the fowl of the air, and over the cattle, and over all the earth, and over every creeping thing that creepeth upon the earth.", guidanceWorthy: "YES", tags: ["identity", "self-worth", "purpose", "human dignity", "authority", "leadership", "stewardship", "responsibility"]},
+            {id: 27, book: "Genesis", chapter: 1, verse: 27, text: "So God created man in his own image, in the image of God created he him; male and female created he them.", guidanceWorthy: "YES", tags: ["identity", "self-worth", "human dignity", "equality", "gender equality", "inherent value"]},
+            {id: 28, book: "Genesis", chapter: 1, verse: 28, text: "And God blessed them, and God said unto them, Be fruitful, and multiply, and replenish the earth, and subdue it: and have dominion over the fish of the sea, and over the fowl of the air, and over every living thing that moveth upon the earth.", guidanceWorthy: "YES", tags: ["blessing", "fertility", "productivity", "authority", "stewardship", "responsibility", "leadership", "purpose", "mandate"]},
+            {id: 29, book: "Genesis", chapter: 1, verse: 29, text: "And God said, Behold, I have given you every herb bearing seed, which is upon the face of all the earth, and every tree, in the which is the fruit of a tree yielding seed; to you it shall be for meat.", guidanceWorthy: "YES", tags: ["provision", "abundance", "gratitude", "needs met", "resources available"]},
+            {id: 30, book: "Genesis", chapter: 1, verse: 30, text: "And to every beast of the earth, and to every fowl of the air, and to every thing that creepeth upon the earth, wherein there is life, I have given every green herb for meat: and it was so.", guidanceWorthy: "MAYBE", tags: ["universal provision", "care for all creation"]},
+            {id: 31, book: "Genesis", chapter: 1, verse: 31, text: "And God saw every thing that he had made, and, behold, it was very good. And the evening and the morning were the sixth day.", guidanceWorthy: "YES", tags: ["gratitude", "appreciation", "completion satisfaction", "seeing good", "wholeness"]}
+        ];
+
+        const TOTAL_VERSES = 31102;
+        let filteredVerses = [...analyzedVerses];
+
+        // Initialize
+        function init() {
+            updateStats();
+            populateBookFilter();
+            renderTable();
+            setupEventListeners();
+        }
+
+        function updateStats() {
+            const total = analyzedVerses.length;
+            const yes = analyzedVerses.filter(v => v.guidanceWorthy === "YES").length;
+            const maybe = analyzedVerses.filter(v => v.guidanceWorthy === "MAYBE").length;
+            const no = analyzedVerses.filter(v => v.guidanceWorthy === "NO").length;
+
+            document.getElementById('totalAnalyzed').textContent = total;
+            document.getElementById('guidanceYes').textContent = yes;
+            document.getElementById('guidanceMaybe').textContent = maybe;
+            document.getElementById('guidanceNo').textContent = no;
+            
+            const percentage = ((total / TOTAL_VERSES) * 100).toFixed(1);
+            document.getElementById('progressText').textContent = 
+                `Analyzed: ${total} / ${TOTAL_VERSES.toLocaleString()} verses (${percentage}%)`;
+        }
+
+        function populateBookFilter() {
+            const books = [...new Set(analyzedVerses.map(v => v.book))];
+            const bookFilter = document.getElementById('bookFilter');
+            books.forEach(book => {
+                const option = document.createElement('option');
+                option.value = book;
+                option.textContent = book;
+                bookFilter.appendChild(option);
+            });
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('verseTableBody');
+            const noResults = document.getElementById('noResults');
+            
+            tbody.innerHTML = '';
+            
+            if (filteredVerses.length === 0) {
+                noResults.style.display = 'block';
+                return;
+            }
+            
+            noResults.style.display = 'none';
+            
+            filteredVerses.forEach(verse => {
+                const row = document.createElement('tr');
+                
+                const badgeClass = verse.guidanceWorthy === "YES" ? "badge-yes" : 
+                                  verse.guidanceWorthy === "MAYBE" ? "badge-maybe" : "badge-no";
+                
+                const tagsHTML = verse.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+                
+                row.innerHTML = `
+                    <td class="verse-ref">${verse.book} ${verse.chapter}:${verse.verse}</td>
+                    <td class="verse-text">${verse.text}</td>
+                    <td><span class="badge ${badgeClass}">${verse.guidanceWorthy}</span></td>
+                    <td><div class="tags">${tagsHTML || '—'}</div></td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            const bookFilter = document.getElementById('bookFilter').value;
+            const guidanceFilter = document.getElementById('guidanceFilter').value;
+
+            filteredVerses = analyzedVerses.filter(verse => {
+                const matchesSearch = !searchTerm || 
+                    verse.text.toLowerCase().includes(searchTerm) ||
+                    verse.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+                
+                const matchesBook = !bookFilter || verse.book === bookFilter;
+                const matchesGuidance = !guidanceFilter || verse.guidanceWorthy === guidanceFilter;
+
+                return matchesSearch && matchesBook && matchesGuidance;
+            });
+
+            renderTable();
+        }
+
+        function setupEventListeners() {
+            document.getElementById('searchBox').addEventListener('input', applyFilters);
+            document.getElementById('bookFilter').addEventListener('change', applyFilters);
+            document.getElementById('guidanceFilter').addEventListener('change', applyFilters);
+        }
+
+        function exportCSV() {
+            let csv = 'Verse ID,Book,Chapter,Verse,Text,Guidance Worthy,Tags\n';
+            
+            analyzedVerses.forEach(verse => {
+                const text = `"${verse.text.replace(/"/g, '""')}"`;
+                const tags = `"${verse.tags.join('|')}"`;
+                csv += `${verse.id},${verse.book},${verse.chapter},${verse.verse},${text},${verse.guidanceWorthy},${tags}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'bible_guidance_verses.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
