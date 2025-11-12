@@ -98,6 +98,15 @@
             transform: translateY(-2px);
         }
 
+        .btn-reset {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #c82333;
+        }
+
         .stats {
             padding: 20px 30px;
             display: grid;
@@ -127,6 +136,15 @@
 
         .stat-crisis {
             color: #dc3545;
+        }
+
+        .edit-notice {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px 30px;
+            color: #856404;
+            text-align: center;
+            font-weight: 600;
         }
 
         .table-container {
@@ -162,6 +180,10 @@
             background: #f8f9fa;
         }
 
+        tr.edited {
+            background: #fff9e6;
+        }
+
         .verse-ref {
             font-weight: 600;
             color: #667eea;
@@ -173,31 +195,42 @@
             max-width: 500px;
         }
 
-        .badge {
+        .status-selector {
             display: inline-block;
+            position: relative;
+        }
+
+        .status-btn {
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
-            white-space: nowrap;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
         }
 
-        .badge-yes {
+        .status-btn:hover {
+            opacity: 0.8;
+            border-color: #667eea;
+        }
+
+        .status-YES {
             background: #d4edda;
             color: #155724;
         }
 
-        .badge-maybe {
+        .status-MAYBE {
             background: #fff3cd;
             color: #856404;
         }
 
-        .badge-no {
+        .status-NO {
             background: #f8d7da;
             color: #721c24;
         }
 
-        .crisis-warning {
+        .crisis-toggle {
             display: inline-block;
             background: #dc3545;
             color: white;
@@ -206,12 +239,24 @@
             font-size: 11px;
             font-weight: 600;
             margin-left: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .tags {
+        .crisis-toggle:hover {
+            background: #c82333;
+        }
+
+        .crisis-toggle.inactive {
+            background: #6c757d;
+            opacity: 0.3;
+        }
+
+        .tags-editor {
             display: flex;
             flex-wrap: wrap;
             gap: 5px;
+            align-items: center;
         }
 
         .tag {
@@ -220,12 +265,91 @@
             padding: 3px 10px;
             border-radius: 12px;
             font-size: 11px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            font-weight: bold;
+            opacity: 0.6;
+        }
+
+        .tag-remove:hover {
+            opacity: 1;
+            color: #dc3545;
+        }
+
+        .tag-add-btn {
+            background: #667eea;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
+        }
+
+        .tag-add-btn:hover {
+            background: #5568d3;
+        }
+
+        .tag-input {
+            padding: 3px 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            font-size: 11px;
+            width: 150px;
+        }
+
+        .edited-badge {
+            background: #ffc107;
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 8px;
         }
 
         .no-results {
             text-align: center;
             padding: 60px 20px;
             color: #6c757d;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
         }
 
         @media (max-width: 768px) {
@@ -248,6 +372,10 @@
             </div>
         </div>
 
+        <div class="edit-notice" id="editNotice" style="display: none;">
+            ⚠️ You have unsaved edits. Changes are stored in your browser. Export CSV to save permanently.
+        </div>
+
         <div class="stats">
             <div class="stat-card">
                 <div class="stat-number" id="totalAnalyzed">57</div>
@@ -267,7 +395,7 @@
             </div>
             <div class="stat-card">
                 <div class="stat-number stat-crisis" id="crisisVerses">9</div>
-                <div class="stat-label">⚠️ Crisis Warning</div>
+                <div class="stat-label">⚠️ 988 Crisis Support</div>
             </div>
         </div>
 
@@ -291,9 +419,16 @@
                     <option value="crisis">Crisis Warning Only</option>
                     <option value="no-crisis">No Crisis Warning</option>
                 </select>
+
+                <select id="editFilter">
+                    <option value="">All Verses</option>
+                    <option value="edited">Edited Only</option>
+                    <option value="original">Original Only</option>
+                </select>
             </div>
 
             <button class="btn btn-export" onclick="exportCSV()">📥 Export CSV</button>
+            <button class="btn btn-reset" onclick="confirmReset()">🔄 Reset All Edits</button>
         </div>
 
         <div class="table-container">
@@ -302,8 +437,8 @@
                     <tr>
                         <th>Reference</th>
                         <th>Text</th>
-                        <th>Status</th>
-                        <th>Tags</th>
+                        <th>Status (click to change)</th>
+                        <th>Tags (click + to add, × to remove)</th>
                     </tr>
                 </thead>
                 <tbody id="verseTableBody">
@@ -315,9 +450,21 @@
         </div>
     </div>
 
+    <!-- Reset Confirmation Modal -->
+    <div id="resetModal" class="modal">
+        <div class="modal-content">
+            <h2>Reset All Edits?</h2>
+            <p>This will restore all verses to their original state. This action cannot be undone.</p>
+            <div class="modal-buttons">
+                <button class="btn" onclick="closeResetModal()">Cancel</button>
+                <button class="btn btn-reset" onclick="resetAllEdits()">Reset Everything</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // VERSE DATABASE - Add new verses here after each analysis session
-        const analyzedVerses = [
+        // ORIGINAL VERSE DATABASE
+        const originalVerses = [
             // GENESIS 1
             {id: 1, book: "Genesis", chapter: 1, verse: 1, text: "In the beginning God created the heaven and the earth.", guidanceWorthy: "YES", mentalHealthCrisis: false, tags: ["new beginnings", "starting over", "fresh start", "creation", "purpose"]},
             {id: 2, book: "Genesis", chapter: 1, verse: 2, text: "And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters.", guidanceWorthy: "YES", mentalHealthCrisis: false, tags: ["chaos", "confusion", "overwhelmed", "disorder", "depression", "hopelessness", "divine presence in darkness"]},
@@ -381,13 +528,89 @@
         ];
 
         const TOTAL_VERSES = 31102;
-        let filteredVerses = [...analyzedVerses];
+        let analyzedVerses = JSON.parse(JSON.stringify(originalVerses)); // Deep copy
+        let filteredVerses = [];
+        let editedVerseIds = new Set();
 
-        // Initialize
+        // Load from localStorage on init
+        function loadEdits() {
+            const saved = localStorage.getItem('bibleVerseEdits');
+            if (saved) {
+                const edits = JSON.parse(saved);
+                editedVerseIds = new Set(edits.editedIds || []);
+                edits.verses.forEach(editedVerse => {
+                    const index = analyzedVerses.findIndex(v => v.id === editedVerse.id);
+                    if (index !== -1) {
+                        analyzedVerses[index] = editedVerse;
+                    }
+                });
+                showEditNotice();
+            }
+        }
+
+        function saveEdits() {
+            localStorage.setItem('bibleVerseEdits', JSON.stringify({
+                verses: analyzedVerses,
+                editedIds: Array.from(editedVerseIds)
+            }));
+            showEditNotice();
+        }
+
+        function showEditNotice() {
+            document.getElementById('editNotice').style.display = editedVerseIds.size > 0 ? 'block' : 'none';
+        }
+
+        function changeStatus(verseId, newStatus) {
+            const verse = analyzedVerses.find(v => v.id === verseId);
+            if (verse) {
+                verse.guidanceWorthy = newStatus;
+                editedVerseIds.add(verseId);
+                saveEdits();
+                updateStats();
+                renderTable();
+            }
+        }
+
+        function toggleCrisis(verseId) {
+            const verse = analyzedVerses.find(v => v.id === verseId);
+            if (verse) {
+                verse.mentalHealthCrisis = !verse.mentalHealthCrisis;
+                editedVerseIds.add(verseId);
+                saveEdits();
+                updateStats();
+                renderTable();
+            }
+        }
+
+        function addTag(verseId, tagInput) {
+            const tag = tagInput.value.trim().toLowerCase();
+            if (!tag) return;
+            
+            const verse = analyzedVerses.find(v => v.id === verseId);
+            if (verse && !verse.tags.includes(tag)) {
+                verse.tags.push(tag);
+                editedVerseIds.add(verseId);
+                saveEdits();
+                renderTable();
+            }
+            tagInput.value = '';
+        }
+
+        function removeTag(verseId, tag) {
+            const verse = analyzedVerses.find(v => v.id === verseId);
+            if (verse) {
+                verse.tags = verse.tags.filter(t => t !== tag);
+                editedVerseIds.add(verseId);
+                saveEdits();
+                renderTable();
+            }
+        }
+
         function init() {
+            loadEdits();
             updateStats();
             populateBookFilter();
-            renderTable();
+            applyFilters();
             setupEventListeners();
         }
 
@@ -435,20 +658,43 @@
             
             filteredVerses.forEach(verse => {
                 const row = document.createElement('tr');
+                const isEdited = editedVerseIds.has(verse.id);
                 
-                const badgeClass = verse.guidanceWorthy === "YES" ? "badge-yes" : 
-                                  verse.guidanceWorthy === "MAYBE" ? "badge-maybe" : "badge-no";
+                if (isEdited) {
+                    row.classList.add('edited');
+                }
                 
-                const crisisWarning = verse.mentalHealthCrisis ? 
-                    '<span class="crisis-warning">⚠️ 988 CRISIS SUPPORT</span>' : '';
+                const statusClass = `status-${verse.guidanceWorthy}`;
+                const crisisClass = verse.mentalHealthCrisis ? '' : 'inactive';
+                const editedBadge = isEdited ? '<span class="edited-badge">EDITED</span>' : '';
                 
-                const tagsHTML = verse.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+                const tagsHTML = verse.tags.map(tag => 
+                    `<span class="tag">${tag}<span class="tag-remove" onclick="removeTag(${verse.id}, '${tag}')">×</span></span>`
+                ).join('');
                 
                 row.innerHTML = `
-                    <td class="verse-ref">${verse.book} ${verse.chapter}:${verse.verse}</td>
+                    <td class="verse-ref">${verse.book} ${verse.chapter}:${verse.verse}${editedBadge}</td>
                     <td class="verse-text">${verse.text}</td>
-                    <td><span class="badge ${badgeClass}">${verse.guidanceWorthy}</span>${crisisWarning}</td>
-                    <td><div class="tags">${tagsHTML || '—'}</div></td>
+                    <td>
+                        <div class="status-selector">
+                            <select onchange="changeStatus(${verse.id}, this.value)" class="status-btn ${statusClass}">
+                                <option value="YES" ${verse.guidanceWorthy === 'YES' ? 'selected' : ''}>YES</option>
+                                <option value="MAYBE" ${verse.guidanceWorthy === 'MAYBE' ? 'selected' : ''}>MAYBE</option>
+                                <option value="NO" ${verse.guidanceWorthy === 'NO' ? 'selected' : ''}>NO</option>
+                            </select>
+                        </div>
+                        <span class="crisis-toggle ${crisisClass}" onclick="toggleCrisis(${verse.id})">
+                            ⚠️ 988
+                        </span>
+                    </td>
+                    <td>
+                        <div class="tags-editor">
+                            ${tagsHTML}
+                            <input type="text" class="tag-input" id="tagInput${verse.id}" placeholder="new tag" 
+                                   onkeypress="if(event.key==='Enter') addTag(${verse.id}, this)">
+                            <button class="tag-add-btn" onclick="addTag(${verse.id}, document.getElementById('tagInput${verse.id}'))">+</button>
+                        </div>
+                    </td>
                 `;
                 
                 tbody.appendChild(row);
@@ -460,6 +706,7 @@
             const bookFilter = document.getElementById('bookFilter').value;
             const guidanceFilter = document.getElementById('guidanceFilter').value;
             const crisisFilter = document.getElementById('crisisFilter').value;
+            const editFilter = document.getElementById('editFilter').value;
 
             filteredVerses = analyzedVerses.filter(verse => {
                 const matchesSearch = !searchTerm || 
@@ -471,8 +718,11 @@
                 const matchesCrisis = !crisisFilter || 
                     (crisisFilter === 'crisis' && verse.mentalHealthCrisis) ||
                     (crisisFilter === 'no-crisis' && !verse.mentalHealthCrisis);
+                const matchesEdit = !editFilter ||
+                    (editFilter === 'edited' && editedVerseIds.has(verse.id)) ||
+                    (editFilter === 'original' && !editedVerseIds.has(verse.id));
 
-                return matchesSearch && matchesBook && matchesGuidance && matchesCrisis;
+                return matchesSearch && matchesBook && matchesGuidance && matchesCrisis && matchesEdit;
             });
 
             renderTable();
@@ -483,25 +733,46 @@
             document.getElementById('bookFilter').addEventListener('change', applyFilters);
             document.getElementById('guidanceFilter').addEventListener('change', applyFilters);
             document.getElementById('crisisFilter').addEventListener('change', applyFilters);
+            document.getElementById('editFilter').addEventListener('change', applyFilters);
         }
 
         function exportCSV() {
-            let csv = 'Verse ID,Book,Chapter,Verse,Text,Guidance Worthy,Mental Health Crisis,Tags\n';
+            let csv = 'Verse ID,Book,Chapter,Verse,Text,Guidance Worthy,Mental Health Crisis,Tags,Edited\n';
             
             analyzedVerses.forEach(verse => {
                 const text = `"${verse.text.replace(/"/g, '""')}"`;
                 const tags = `"${verse.tags.join('|')}"`;
                 const crisis = verse.mentalHealthCrisis ? 'YES' : 'NO';
-                csv += `${verse.id},${verse.book},${verse.chapter},${verse.verse},${text},${verse.guidanceWorthy},${crisis},${tags}\n`;
+                const edited = editedVerseIds.has(verse.id) ? 'YES' : 'NO';
+                csv += `${verse.id},${verse.book},${verse.chapter},${verse.verse},${text},${verse.guidanceWorthy},${crisis},${tags},${edited}\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'bible_guidance_verses.csv';
+            const timestamp = new Date().toISOString().split('T')[0];
+            a.download = `bible_guidance_verses_${timestamp}.csv`;
             a.click();
             window.URL.revokeObjectURL(url);
+        }
+
+        function confirmReset() {
+            document.getElementById('resetModal').classList.add('show');
+        }
+
+        function closeResetModal() {
+            document.getElementById('resetModal').classList.remove('show');
+        }
+
+        function resetAllEdits() {
+            analyzedVerses = JSON.parse(JSON.stringify(originalVerses));
+            editedVerseIds.clear();
+            localStorage.removeItem('bibleVerseEdits');
+            closeResetModal();
+            showEditNotice();
+            updateStats();
+            applyFilters();
         }
 
         // Initialize on load
