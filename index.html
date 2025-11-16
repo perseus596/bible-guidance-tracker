@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bible Guidance Tracker - Genesis 1-22</title>
+    <title>Bible Guidance Tracker</title>
     <style>
         * {
             margin: 0;
@@ -12,545 +12,856 @@
         }
 
         body {
-            font-family: 'Georgia', 'Times New Roman', serif;
-            background: linear-gradient(135deg, #2c2416 0%, #3d3123 50%, #4a3f2e 100%);
-            color: #e8dcc8;
-            line-height: 1.8;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+            min-height: 100vh;
             padding: 20px;
+            color: #333;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
         }
 
-        header {
+        .header {
+            background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+            color: white;
+            padding: 40px 30px;
             text-align: center;
-            padding: 50px 0;
-            border-bottom: 2px solid #b8956a;
-            margin-bottom: 40px;
         }
 
-        h1 {
-            font-size: 2.8em;
-            color: #d4af6a;
-            font-weight: 300;
-            letter-spacing: 2px;
-            margin-bottom: 15px;
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 600;
         }
 
-        .subtitle {
-            color: #b8a080;
-            font-size: 1.1em;
-            font-family: 'Segoe UI', sans-serif;
-            font-weight: 300;
+        .progress {
+            font-size: 1.3em;
+            opacity: 0.95;
+            margin-top: 10px;
         }
 
-        .stats-dashboard {
+        .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
         }
 
         .stat-card {
-            background: rgba(212, 175, 106, 0.08);
-            border: 1px solid rgba(184, 149, 106, 0.3);
+            background: white;
+            padding: 20px;
             border-radius: 12px;
-            padding: 30px 20px;
             text-align: center;
-            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
         }
 
         .stat-card:hover {
             transform: translateY(-3px);
-            background: rgba(212, 175, 106, 0.12);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
 
         .stat-number {
-            font-size: 3em;
-            color: #d4af6a;
-            font-weight: 300;
-            font-family: 'Segoe UI', sans-serif;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2b5876;
         }
 
         .stat-label {
-            color: #b8a080;
-            font-size: 0.9em;
+            color: #666;
             margin-top: 8px;
-            font-family: 'Segoe UI', sans-serif;
+            font-size: 0.95em;
         }
 
-        .filters {
-            background: rgba(61, 49, 35, 0.6);
-            border: 1px solid rgba(184, 149, 106, 0.3);
-            border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 40px;
+        .stat-crisis .stat-number {
+            color: #dc3545;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: white;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 20px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #2b5876;
         }
 
         .filter-group {
-            margin-bottom: 20px;
-        }
-
-        .filter-group label {
-            display: block;
-            color: #d4af6a;
-            margin-bottom: 8px;
-            font-weight: 400;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .filter-group input, .filter-group select {
-            width: 100%;
-            padding: 12px;
-            background: rgba(232, 220, 200, 0.08);
-            border: 1px solid rgba(184, 149, 106, 0.3);
-            border-radius: 6px;
-            color: #e8dcc8;
-            font-size: 1em;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .filter-group input:focus, .filter-group select:focus {
-            outline: none;
-            border-color: #d4af6a;
-            background: rgba(232, 220, 200, 0.12);
-        }
-
-        .filter-buttons {
             display: flex;
-            gap: 12px;
+            gap: 10px;
+            align-items: center;
             flex-wrap: wrap;
         }
 
-        .filter-btn {
-            padding: 10px 20px;
-            background: rgba(212, 175, 106, 0.15);
-            border: 1px solid rgba(184, 149, 106, 0.4);
-            border-radius: 6px;
-            color: #d4af6a;
+        select {
+            padding: 10px 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Segoe UI', sans-serif;
         }
 
-        .filter-btn:hover, .filter-btn.active {
-            background: rgba(212, 175, 106, 0.3);
-            border-color: #d4af6a;
-            color: #fff;
+        select:focus {
+            outline: none;
+            border-color: #2b5876;
         }
 
-        .chapter {
-            background: rgba(61, 49, 35, 0.4);
-            border: 1px solid rgba(184, 149, 106, 0.25);
-            border-radius: 12px;
-            padding: 35px;
-            margin-bottom: 40px;
-        }
-
-        .chapter-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(184, 149, 106, 0.2);
-        }
-
-        .chapter-title {
-            font-size: 2em;
-            color: #d4af6a;
-            font-weight: 300;
-        }
-
-        .chapter-stats {
-            display: flex;
-            gap: 25px;
-            font-size: 0.9em;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .chapter-stat {
-            color: #b8a080;
-        }
-
-        .chapter-stat strong {
-            color: #d4af6a;
-        }
-
-        .notable-moments {
-            background: rgba(212, 175, 106, 0.06);
-            border-left: 3px solid #b8956a;
-            padding: 20px;
-            margin-bottom: 25px;
-            border-radius: 6px;
-        }
-
-        .notable-moments h3 {
-            color: #d4af6a;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-            font-weight: 400;
-        }
-
-        .notable-moments ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .notable-moments li {
-            padding: 8px 0;
-            color: #d8c9b0;
-            border-bottom: 1px solid rgba(184, 149, 106, 0.15);
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .notable-moments li:last-child {
-            border-bottom: none;
-        }
-
-        .verse {
-            background: rgba(0, 0, 0, 0.2);
-            border-left: 4px solid;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-        }
-
-        .verse:hover {
-            background: rgba(212, 175, 106, 0.08);
-        }
-
-        .verse.yes {
-            border-left-color: #8ab17d;
-        }
-
-        .verse.maybe {
-            border-left-color: #d4af6a;
-        }
-
-        .verse.no {
-            border-left-color: #9d8169;
-        }
-
-        .verse-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .verse-reference {
-            font-weight: 600;
-            color: #d4af6a;
-            font-size: 1.15em;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .verse-status {
-            padding: 5px 14px;
-            border-radius: 20px;
-            font-size: 0.85em;
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
             font-weight: 500;
-            font-family: 'Segoe UI', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .status-yes {
-            background: rgba(138, 177, 125, 0.2);
-            color: #8ab17d;
-            border: 1px solid #8ab17d;
+        .btn-export {
+            background: #28a745;
+            color: white;
         }
 
-        .status-maybe {
-            background: rgba(212, 175, 106, 0.2);
-            color: #d4af6a;
-            border: 1px solid #d4af6a;
+        .btn-export:hover {
+            background: #218838;
         }
 
-        .status-no {
-            background: rgba(157, 129, 105, 0.2);
-            color: #b8a080;
-            border: 1px solid #9d8169;
+        .verse-list {
+            padding: 30px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .verse-item {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .verse-item:hover {
+            border-color: #2b5876;
+            box-shadow: 0 4px 12px rgba(43, 88, 118, 0.1);
+            transform: translateX(5px);
+        }
+
+        .verse-item.edited {
+            background: #fff9e6;
+            border-color: #ffc107;
+        }
+
+        .verse-ref {
+            font-weight: 600;
+            color: #2b5876;
+            font-size: 1.1em;
+            margin-bottom: 8px;
         }
 
         .verse-text {
-            color: #c8b89d;
-            font-style: italic;
-            margin-bottom: 15px;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.15);
-            border-radius: 6px;
-            font-size: 1.05em;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 12px;
         }
 
-        .verse-tags {
+        .verse-meta {
             display: flex;
-            flex-wrap: wrap;
             gap: 10px;
-            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-yes {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-maybe {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-no {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .crisis-badge {
+            background: #dc3545;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
         }
 
         .tag {
-            background: rgba(212, 175, 106, 0.15);
-            color: #d4af6a;
-            padding: 4px 12px;
-            border-radius: 15px;
+            background: #e7f3ff;
+            color: #004085;
+            padding: 6px 12px;
+            border-radius: 20px;
             font-size: 0.85em;
-            border: 1px solid rgba(184, 149, 106, 0.3);
-            font-family: 'Segoe UI', sans-serif;
         }
 
-        .verse-application {
-            color: #e8dcc8;
-            line-height: 1.8;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .crisis-warning {
-            background: rgba(157, 78, 78, 0.2);
-            border: 2px solid #9d6a6a;
-            border-radius: 6px;
-            padding: 12px;
-            margin-top: 12px;
-            color: #d89999;
-            font-weight: 500;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .hidden {
+        /* MODAL STYLES */
+        .modal {
             display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
         }
 
-        footer {
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .modal-verse-ref {
+            font-size: 1.8em;
+            font-weight: 600;
+            color: #2b5876;
+            margin-bottom: 20px;
+        }
+
+        .modal-verse-text {
+            font-size: 1.2em;
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #2b5876;
+        }
+
+        .modal-section {
+            margin-bottom: 25px;
+        }
+
+        .modal-section-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #2b5876;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-selector {
+            display: flex;
+            gap: 10px;
+        }
+
+        .status-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .status-btn:hover {
+            border-color: #2b5876;
+        }
+
+        .status-btn.active {
+            border-color: #2b5876;
+            background: #2b5876;
+            color: white;
+        }
+
+        .crisis-toggle {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .crisis-toggle:hover {
+            background: #e9ecef;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: #ccc;
+            border-radius: 13px;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #dc3545;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(24px);
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .tag-item {
+            background: #e7f3ff;
+            color: #004085;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            font-weight: bold;
+            color: #721c24;
+            transition: color 0.2s;
+        }
+
+        .tag-remove:hover {
+            color: #dc3545;
+        }
+
+        .tag-input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tag-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .tag-input:focus {
+            outline: none;
+            border-color: #2b5876;
+        }
+
+        .btn-add-tag {
+            background: #2b5876;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-add-tag:hover {
+            background: #1d3f58;
+        }
+
+        .no-results {
             text-align: center;
-            padding: 50px 0 20px;
-            color: #7a6f5f;
-            border-top: 1px solid rgba(184, 149, 106, 0.2);
-            margin-top: 60px;
-            font-family: 'Segoe UI', sans-serif;
+            padding: 40px;
+            color: #999;
+            font-size: 1.2em;
         }
 
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2em;
-            }
-
-            .chapter-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .chapter-stats {
-                margin-top: 15px;
-            }
-
-            .stat-number {
-                font-size: 2.5em;
-            }
+        .edited-badge {
+            background: #ffc107;
+            color: #856404;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Bible Guidance Tracker</h1>
-            <p class="subtitle">Genesis Chapters 1-22 • Verse-by-Verse Analysis</p>
-            <p class="subtitle">756 Verses Analyzed</p>
-        </header>
+        <div class="header">
+            <h1>📖 Bible Guidance Tracker</h1>
+            <div class="progress">Genesis 1-31 Complete</div>
+        </div>
 
-        <div class="stats-dashboard">
+        <div class="stats">
             <div class="stat-card">
-                <div class="stat-number" id="total-verses">756</div>
-                <div class="stat-label">Total Verses</div>
+                <div class="stat-number" id="totalAnalyzed">1113</div>
+                <div class="stat-label">Total Analyzed</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="yes-count">524</div>
+                <div class="stat-number" id="guidanceYes">--</div>
                 <div class="stat-label">YES (Guidance-Worthy)</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="maybe-count">94</div>
+                <div class="stat-number" id="guidanceMaybe">--</div>
                 <div class="stat-label">MAYBE</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="no-count">138</div>
+                <div class="stat-number" id="guidanceNo">--</div>
                 <div class="stat-label">NO</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="hit-rate">82%</div>
-                <div class="stat-label">Hit Rate (YES+MAYBE)</div>
+                <div class="stat-number stat-crisis" id="crisisVerses">1</div>
+                <div class="stat-label">⚠️ 988 Crisis Support</div>
             </div>
         </div>
 
-        <div class="filters">
-            <h2 style="color: #d4af6a; margin-bottom: 15px; font-weight: 400;">Filters</h2>
+        <div class="controls">
+            <input type="text" class="search-box" id="searchBox" placeholder="Search verses, references, or tags...">
             
             <div class="filter-group">
-                <label>Guidance Status:</label>
-                <div class="filter-buttons">
-                    <button class="filter-btn active" onclick="filterStatus('all')">All</button>
-                    <button class="filter-btn" onclick="filterStatus('yes')">YES Only</button>
-                    <button class="filter-btn" onclick="filterStatus('maybe')">MAYBE Only</button>
-                    <button class="filter-btn" onclick="filterStatus('no')">NO Only</button>
-                </div>
-            </div>
+                <select id="chapterFilter">
+                    <option value="">All Chapters</option>
+                </select>
+                
+                <select id="guidanceFilter">
+                    <option value="">All Status</option>
+                    <option value="YES">YES</option>
+                    <option value="MAYBE">MAYBE</option>
+                    <option value="NO">NO</option>
+                </select>
 
-            <div class="filter-group">
-                <label>Chapter:</label>
-                <select id="chapter-filter" onchange="filterChapter()">
-                    <option value="all">All Chapters</option>
-                    <option value="1">Genesis 1</option>
-                    <option value="2">Genesis 2</option>
-                    <option value="3">Genesis 3</option>
-                    <option value="4">Genesis 4</option>
-                    <option value="5">Genesis 5</option>
-                    <option value="6">Genesis 6</option>
-                    <option value="7">Genesis 7</option>
-                    <option value="8">Genesis 8</option>
-                    <option value="9">Genesis 9</option>
-                    <option value="10">Genesis 10</option>
-                    <option value="11">Genesis 11</option>
-                    <option value="12">Genesis 12</option>
-                    <option value="13">Genesis 13</option>
-                    <option value="14">Genesis 14</option>
-                    <option value="15">Genesis 15</option>
-                    <option value="16">Genesis 16</option>
-                    <option value="17">Genesis 17</option>
-                    <option value="18">Genesis 18</option>
-                    <option value="19">Genesis 19</option>
-                    <option value="20">Genesis 20</option>
-                    <option value="21">Genesis 21</option>
-                    <option value="22">Genesis 22</option>
+                <select id="crisisFilter">
+                    <option value="">All Verses</option>
+                    <option value="crisis">Crisis Only</option>
+                    <option value="no-crisis">No Crisis</option>
+                </select>
+
+                <select id="editFilter">
+                    <option value="">All Edits</option>
+                    <option value="edited">Edited Only</option>
+                    <option value="original">Original Only</option>
                 </select>
             </div>
 
-            <div class="filter-group">
-                <label>Search Tags/Application:</label>
-                <input type="text" id="search-input" onkeyup="searchVerses()" placeholder="Type to search...">
+            <button class="btn btn-export" onclick="exportCSV()">📥 Export CSV</button>
+        </div>
+
+        <div class="verse-list" id="verseList">
+            <!-- Verses will be populated here -->
+        </div>
+
+        <div id="noResults" class="no-results" style="display: none;">
+            No verses found matching your filters.
+        </div>
+    </div>
+
+    <!-- VERSE DETAIL MODAL -->
+    <div id="verseModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            
+            <div class="modal-verse-ref" id="modalRef"></div>
+            <div class="modal-verse-text" id="modalText"></div>
+
+            <div class="modal-section">
+                <div class="modal-section-title">📊 Guidance Status</div>
+                <div class="status-selector">
+                    <button class="status-btn" onclick="setStatus('YES')">YES</button>
+                    <button class="status-btn" onclick="setStatus('MAYBE')">MAYBE</button>
+                    <button class="status-btn" onclick="setStatus('NO')">NO</button>
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <div class="modal-section-title">⚠️ Mental Health Crisis Support (988)</div>
+                <div class="crisis-toggle" onclick="toggleCrisis()">
+                    <div class="toggle-switch" id="crisisToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                    <span id="crisisLabel">No crisis warning</span>
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <div class="modal-section-title">🏷️ Tags</div>
+                <div class="tags-container" id="tagsContainer"></div>
+                <div class="tag-input-container">
+                    <input type="text" class="tag-input" id="tagInput" placeholder="Add new tag...">
+                    <button class="btn-add-tag" onclick="addTag()">+ Add</button>
+                </div>
             </div>
         </div>
-
-        <div id="chapters-container">
-            <!-- Chapter data will be inserted here by JavaScript -->
-        </div>
-
-        <footer>
-            <p>Bible Guidance App Tracker • Genesis 1-22 Complete</p>
-            <p>Next: Genesis 23-50 (New conversation required)</p>
-        </footer>
     </div>
 
     <script>
-        // COMPREHENSIVE DATA FOR GENESIS 1-22
-        const chaptersData = {
-            1: {
-                hitRate: 58,
-                yes: 18,
-                maybe: 0,
-                no: 13,
-                notableMoments: [
-                    "V. 1: 'In the beginning' - starting from chaos/void",
-                    "V. 2: Moving over formless void - before there's anything to work with",
-                    "V. 3: 'Let there be light' - speaking into darkness",
-                    "V. 27: 'Image of God' - inherent dignity regardless of what you've done",
-                    "V. 31: 'Very good' - pronouncement over creation including you"
-                ],
-                verses: []
-            },
-            2: {
-                hitRate: 72,
-                yes: 18,
-                maybe: 0,
-                no: 7,
-                notableMoments: [
-                    "V. 7: 'Breathed into his nostrils the breath of life' - direct divine intimacy",
-                    "V. 15: 'To dress it and keep it' - work as worship, purpose in cultivation",
-                    "V. 17: Boundaries with consequences - freedom within limits",
-                    "V. 18: 'Not good for man to be alone' - loneliness acknowledged",
-                    "V. 24: Leave and cleave - healthy separation from parents"
-                ],
-                verses: []
-            },
-            3: {
-                hitRate: 76,
-                yes: 19,
-                maybe: 0,
-                no: 5,
-                notableMoments: [
-                    "V. 1: 'Yea, hath God said?' - questioning God's word as temptation strategy",
-                    "V. 7: 'Eyes were opened, knew they were naked' - shame enters after sin",
-                    "V. 8: Hiding from God - universal human response to guilt",
-                    "V. 12: 'Woman whom thou gavest' - blaming others (and God) for your choice",
-                    "V. 21: God made garments - covering shame is God's work, not ours"
-                ],
-                verses: []
-            },
-            // ... Continue with rest of chapters
-        };
+        // SAMPLE DATA - Replace with actual verse data
+        let versesData = [
+            {
+                id: 1,
+                book: "Genesis",
+                chapter: 30,
+                verse: 1,
+                text: "And when Rachel saw that she bare Jacob no children, Rachel envied her sister; and said unto Jacob, Give me children, or else I die.",
+                guidanceWorthy: "YES",
+                mentalHealthCrisis: true,
+                tags: ["infertility", "envy", "desperation"],
+                application: "Rachel's barrenness creates desperate envy. Infertility can feel like death.",
+                edited: false
+            }
+            // Add more verses here from your analysis
+        ];
 
-        // Initialize the page
+        let currentVerseId = null;
+
+        // Load saved edits from localStorage
+        function loadEdits() {
+            const saved = localStorage.getItem('bibleTrackerEdits');
+            if (saved) {
+                const edits = JSON.parse(saved);
+                versesData = versesData.map(verse => {
+                    const edit = edits.find(e => e.id === verse.id);
+                    return edit || verse;
+                });
+            }
+        }
+
+        // Save edits to localStorage
+        function saveEdits() {
+            localStorage.setItem('bibleTrackerEdits', JSON.stringify(versesData));
+            updateStats();
+            renderVerses();
+        }
+
+        // Initialize
         function init() {
-            renderAllChapters();
+            loadEdits();
+            populateFilters();
+            updateStats();
+            renderVerses();
         }
 
-        function renderAllChapters() {
-            // This is a placeholder - in the actual file, I'll include all verse data
-            const container = document.getElementById('chapters-container');
-            container.innerHTML = '<p style="color: #d4af6a; text-align: center; padding: 40px; font-family: Georgia, serif;">Full verse data loading... (756 verses total)</p>';
+        // Populate filter dropdowns
+        function populateFilters() {
+            const chapters = [...new Set(versesData.map(v => v.chapter))].sort((a, b) => a - b);
+            const chapterFilter = document.getElementById('chapterFilter');
+            chapters.forEach(ch => {
+                const option = document.createElement('option');
+                option.value = ch;
+                option.textContent = `Chapter ${ch}`;
+                chapterFilter.appendChild(option);
+            });
         }
 
-        function filterStatus(status) {
-            // Update button states
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        // Update statistics
+        function updateStats() {
+            const yes = versesData.filter(v => v.guidanceWorthy === 'YES').length;
+            const maybe = versesData.filter(v => v.guidanceWorthy === 'MAYBE').length;
+            const no = versesData.filter(v => v.guidanceWorthy === 'NO').length;
+            const crisis = versesData.filter(v => v.mentalHealthCrisis).length;
+
+            document.getElementById('totalAnalyzed').textContent = versesData.length;
+            document.getElementById('guidanceYes').textContent = yes;
+            document.getElementById('guidanceMaybe').textContent = maybe;
+            document.getElementById('guidanceNo').textContent = no;
+            document.getElementById('crisisVerses').textContent = crisis;
+        }
+
+        // Render verses
+        function renderVerses() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            const chapterFilter = document.getElementById('chapterFilter').value;
+            const guidanceFilter = document.getElementById('guidanceFilter').value;
+            const crisisFilter = document.getElementById('crisisFilter').value;
+            const editFilter = document.getElementById('editFilter').value;
+
+            let filtered = versesData.filter(verse => {
+                // Search filter
+                const matchesSearch = !searchTerm || 
+                    verse.text.toLowerCase().includes(searchTerm) ||
+                    verse.tags.some(tag => tag.toLowerCase().includes(searchTerm)) ||
+                    `${verse.book} ${verse.chapter}:${verse.verse}`.toLowerCase().includes(searchTerm);
+
+                // Chapter filter
+                const matchesChapter = !chapterFilter || verse.chapter == chapterFilter;
+
+                // Guidance filter
+                const matchesGuidance = !guidanceFilter || verse.guidanceWorthy === guidanceFilter;
+
+                // Crisis filter
+                const matchesCrisis = !crisisFilter || 
+                    (crisisFilter === 'crisis' && verse.mentalHealthCrisis) ||
+                    (crisisFilter === 'no-crisis' && !verse.mentalHealthCrisis);
+
+                // Edit filter
+                const matchesEdit = !editFilter ||
+                    (editFilter === 'edited' && verse.edited) ||
+                    (editFilter === 'original' && !verse.edited);
+
+                return matchesSearch && matchesChapter && matchesGuidance && matchesCrisis && matchesEdit;
+            });
+
+            const verseList = document.getElementById('verseList');
+            const noResults = document.getElementById('noResults');
+
+            if (filtered.length === 0) {
+                verseList.style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            verseList.style.display = 'block';
+            noResults.style.display = 'none';
+
+            verseList.innerHTML = filtered.map(verse => `
+                <div class="verse-item ${verse.edited ? 'edited' : ''}" onclick="openModal(${verse.id})">
+                    <div class="verse-ref">${verse.book} ${verse.chapter}:${verse.verse} ${verse.edited ? '<span class="edited-badge">EDITED</span>' : ''}</div>
+                    <div class="verse-text">${verse.text}</div>
+                    <div class="verse-meta">
+                        <span class="status-badge status-${verse.guidanceWorthy.toLowerCase()}">${verse.guidanceWorthy}</span>
+                        ${verse.mentalHealthCrisis ? '<span class="crisis-badge">⚠️ 988 CRISIS SUPPORT</span>' : ''}
+                        ${verse.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Open modal
+        function openModal(verseId) {
+            currentVerseId = verseId;
+            const verse = versesData.find(v => v.id === verseId);
+            if (!verse) return;
+
+            document.getElementById('modalRef').textContent = `${verse.book} ${verse.chapter}:${verse.verse}`;
+            document.getElementById('modalText').textContent = verse.text;
+
+            // Set status buttons
+            document.querySelectorAll('.status-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`.status-btn[onclick="setStatus('${verse.guidanceWorthy}')"]`).classList.add('active');
+
+            // Set crisis toggle
+            const toggle = document.getElementById('crisisToggle');
+            const label = document.getElementById('crisisLabel');
+            if (verse.mentalHealthCrisis) {
+                toggle.classList.add('active');
+                label.textContent = '⚠️ Crisis warning enabled (988)';
+            } else {
+                toggle.classList.remove('active');
+                label.textContent = 'No crisis warning';
+            }
+
+            // Render tags
+            renderTags(verse.tags);
+
+            document.getElementById('verseModal').classList.add('active');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('verseModal').classList.remove('active');
+            currentVerseId = null;
+        }
+
+        // Set status
+        function setStatus(status) {
+            const verse = versesData.find(v => v.id === currentVerseId);
+            if (!verse) return;
+
+            verse.guidanceWorthy = status;
+            verse.edited = true;
+
+            document.querySelectorAll('.status-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
 
-            // Filter verses
-            const verses = document.querySelectorAll('.verse');
-            verses.forEach(verse => {
-                if (status === 'all') {
-                    verse.classList.remove('hidden');
-                } else {
-                    if (verse.classList.contains(status)) {
-                        verse.classList.remove('hidden');
-                    } else {
-                        verse.classList.add('hidden');
-                    }
-                }
-            });
+            saveEdits();
         }
 
-        function filterChapter() {
-            const selected = document.getElementById('chapter-filter').value;
-            const chapters = document.querySelectorAll('.chapter');
-            
-            chapters.forEach(chapter => {
-                if (selected === 'all') {
-                    chapter.classList.remove('hidden');
-                } else {
-                    if (chapter.dataset.chapter === selected) {
-                        chapter.classList.remove('hidden');
-                    } else {
-                        chapter.classList.add('hidden');
-                    }
-                }
-            });
+        // Toggle crisis
+        function toggleCrisis() {
+            const verse = versesData.find(v => v.id === currentVerseId);
+            if (!verse) return;
+
+            verse.mentalHealthCrisis = !verse.mentalHealthCrisis;
+            verse.edited = true;
+
+            const toggle = document.getElementById('crisisToggle');
+            const label = document.getElementById('crisisLabel');
+            if (verse.mentalHealthCrisis) {
+                toggle.classList.add('active');
+                label.textContent = '⚠️ Crisis warning enabled (988)';
+            } else {
+                toggle.classList.remove('active');
+                label.textContent = 'No crisis warning';
+            }
+
+            saveEdits();
         }
 
-        function searchVerses() {
-            const searchTerm = document.getElementById('search-input').value.toLowerCase();
-            const verses = document.querySelectorAll('.verse');
-            
-            verses.forEach(verse => {
-                const text = verse.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    verse.classList.remove('hidden');
-                } else {
-                    verse.classList.add('hidden');
-                }
-            });
+        // Render tags
+        function renderTags(tags) {
+            const container = document.getElementById('tagsContainer');
+            container.innerHTML = tags.map(tag => `
+                <div class="tag-item">
+                    ${tag}
+                    <span class="tag-remove" onclick="removeTag('${tag}')">×</span>
+                </div>
+            `).join('');
         }
+
+        // Add tag
+        function addTag() {
+            const input = document.getElementById('tagInput');
+            const tag = input.value.trim();
+            if (!tag) return;
+
+            const verse = versesData.find(v => v.id === currentVerseId);
+            if (!verse) return;
+
+            if (!verse.tags.includes(tag)) {
+                verse.tags.push(tag);
+                verse.edited = true;
+                renderTags(verse.tags);
+                saveEdits();
+            }
+
+            input.value = '';
+        }
+
+        // Remove tag
+        function removeTag(tag) {
+            const verse = versesData.find(v => v.id === currentVerseId);
+            if (!verse) return;
+
+            verse.tags = verse.tags.filter(t => t !== tag);
+            verse.edited = true;
+            renderTags(verse.tags);
+            saveEdits();
+        }
+
+        // Export CSV
+        function exportCSV() {
+            const csv = [
+                ['Reference', 'Text', 'Status', 'Crisis', 'Tags', 'Application', 'Edited'].join(','),
+                ...versesData.map(v => [
+                    `"${v.book} ${v.chapter}:${v.verse}"`,
+                    `"${v.text.replace(/"/g, '""')}"`,
+                    v.guidanceWorthy,
+                    v.mentalHealthCrisis ? 'YES' : 'NO',
+                    `"${v.tags.join(', ')}"`,
+                    `"${v.application.replace(/"/g, '""')}"`,
+                    v.edited ? 'YES' : 'NO'
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `bible-tracker-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        // Event listeners
+        document.getElementById('searchBox').addEventListener('input', renderVerses);
+        document.getElementById('chapterFilter').addEventListener('change', renderVerses);
+        document.getElementById('guidanceFilter').addEventListener('change', renderVerses);
+        document.getElementById('crisisFilter').addEventListener('change', renderVerses);
+        document.getElementById('editFilter').addEventListener('change', renderVerses);
+
+        document.getElementById('tagInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addTag();
+        });
+
+        // Close modal on outside click
+        document.getElementById('verseModal').addEventListener('click', function(e) {
+            if (e.target.id === 'verseModal') closeModal();
+        });
 
         // Initialize on load
         window.onload = init;
